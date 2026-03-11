@@ -1,0 +1,72 @@
+package com.loginJWT.backend.security.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form.disable());
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+}
+
+/*
+
+🛡️ SecurityConfig:
+    Esta clase define las reglas de seguridad de tu aplicación.
+    Es como el portero del edificio:
+    Decide quién puede entrar.
+    Qué puertas están abiertas.
+    Qué puertas requieren identificación.
+    Cómo se validan las contraseñas.
+    Qué motor se usa para autenticar usuarios.
+
+🚫csrf -> csrf.disable():
+    CSRF protege formularios tradicionales (cookies).
+    Cuando usas JWT (API REST) normalmente NO lo necesitas.
+    Por eso se desactiva.
+    Si no lo desactivas, te puede bloquear peticiones POST, PUT, DELETE.
+
+🔓.requestMatchers("/auth/**").permitAll():
+    Cualquier endpoint que empiece por:
+    /auth/login
+    /auth/register
+    /auth/refresh
+    No necesita token, Puede entrar cualquier persona.
+    Esto es obligatorio, porque si no: Nadie podría ni siquiera loguearse.
+
+🔒 anyRequest().authenticated():
+    Esto significa:
+    Cualquier otra ruta: /productos, /facturas, /usuarios
+    Debe venir con un usuario autenticado (token válido).
+
+🧱 return http.build():
+    Construye la configuración final y se la entrega a Spring.
+
+ */

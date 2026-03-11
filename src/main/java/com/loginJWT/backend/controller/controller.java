@@ -17,10 +17,15 @@ public class controller {
     private IUsuarioService usuarioService;
 
     @PostMapping("/crear")
-    public ResponseEntity<UsuarioDTO> agregarUsuario(@RequestBody UsuarioDTO usuarioDto) {
+    public ResponseEntity<?> agregarUsuario(@RequestBody UsuarioDTO usuarioDto) {
+        try {
 
-        UsuarioDTO usuarioCreado = usuarioService.agregarUsuario(usuarioDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCreado);
+            UsuarioDTO usuarioCreado = usuarioService.agregarUsuario(usuarioDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCreado);
+
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @GetMapping("/listarUsuarios")

@@ -1,10 +1,13 @@
 package com.loginJWT.backend.service.impl;
 
 import com.loginJWT.backend.dto.UsuarioDTO;
+import com.loginJWT.backend.entity.RolEntity;
 import com.loginJWT.backend.entity.UsuarioEntity;
+import com.loginJWT.backend.repository.IRolRepository;
 import com.loginJWT.backend.repository.IUsuarioRepository;
 import com.loginJWT.backend.service.IUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,14 +19,38 @@ public class UsuarioServiceImpl implements IUsuarioService {
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
+    @Autowired
+    private IRolRepository rolRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UsuarioDTO agregarUsuario(UsuarioDTO usuarioDto) {
-        //Pasamos de dtp --> entity
+
+        // Validar si el username ya existe
+        if (usuarioRepository.findByUsername(usuarioDto.getUsername()).isPresent()) {
+            throw new RuntimeException("Error: el username -> "+usuarioDto.getUsername()+" ya existe");
+        }
+
+        // Buscar rol USER
+        RolEntity rolEnt = rolRepository.findByNombreRol("USER")
+                .orElseThrow(() -> new RuntimeException("Erro: Rol USER no existe"));
+
+
+        // Crear Usuario: Pasamos de dto --> entity
         UsuarioEntity usuarioEnt = new UsuarioEntity();
         usuarioEnt.setNombre(usuarioDto.getNombre());
         usuarioEnt.setApellido(usuarioDto.getApellido());
         usuarioEnt.setEdad(usuarioDto.getEdad());
         usuarioEnt.setTelefono(usuarioDto.getTelefono());
+        usuarioEnt.setUsername(usuarioDto.getUsername());
+
+        // Encriptar password antes de guardar
+        usuarioEnt.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+
+        // Asignar Rol
+        usuarioEnt.setRolEnt(rolEnt);
 
         // Guardamos en la base de datos
         UsuarioEntity usuarioGuardado = usuarioRepository.save(usuarioEnt);

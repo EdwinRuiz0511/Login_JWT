@@ -21,6 +21,7 @@ public class UsuarioEntity {
     private int edad;
     private String telefono;
 
+    // para login
     private String username;
     private String password;
 
