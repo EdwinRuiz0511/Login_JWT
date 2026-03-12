@@ -2,6 +2,7 @@ package com.loginJWT.backend.controller;
 
 import com.loginJWT.backend.dto.LoginRequestDTO;
 import com.loginJWT.backend.dto.UsuarioDTO;
+import com.loginJWT.backend.security.serviceSecurity.JwtService;
 import com.loginJWT.backend.service.IUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private JwtService jwtService;
+
     @PostMapping("/crear")
     public ResponseEntity<?> agregarUsuario(@RequestBody UsuarioDTO usuarioDto) {
         try {
@@ -43,7 +47,10 @@ public class AuthController {
                     loginRequestDto.getPassword()
             ));
 
-            return  ResponseEntity.ok("✅ Login exictoso, Usuario autenticado");
+            // 🔐 Generar el token JWT
+            String token = jwtService.generarToken(loginRequestDto.getUsername());
+
+            return  ResponseEntity.ok("✅ Login exictoso, Usuario autenticado ----->  " + token);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: "+e.getMessage());
