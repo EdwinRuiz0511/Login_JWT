@@ -50,7 +50,7 @@ public class AuthController {
             // 🔐 Generar el token JWT
             String token = jwtService.generarToken(loginRequestDto.getUsername());
 
-            return  ResponseEntity.ok("✅ Login exictoso, Usuario autenticado ----->  " + token);
+            return  ResponseEntity.ok("✅ Login exictoso, Usuario autenticado ----->  \n\n" + token);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: "+e.getMessage());

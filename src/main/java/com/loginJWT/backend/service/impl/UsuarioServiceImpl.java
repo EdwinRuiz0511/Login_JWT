@@ -30,7 +30,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
         // Validar si el username ya existe
         if (usuarioRepository.findByUsername(usuarioDto.getUsername()).isPresent()) {
-            throw new RuntimeException("Error: el username -> "+usuarioDto.getUsername()+" ya existe");
+            throw new RuntimeException("Error: el username --> "+usuarioDto.getUsername()+" ya existe");
         }
 
         // Buscar rol USER
