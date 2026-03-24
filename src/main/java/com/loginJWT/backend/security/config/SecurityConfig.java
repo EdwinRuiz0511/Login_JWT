@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,8 +24,23 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())                                                  // Desactiva la protección CSRF. Esto normalmente se hace en APIs REST
+
+                //Se deshabilitan las HttpSession para que cada petición sea validada únicamente a través del token JWT.
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth                                       // Configura las reglas de autorización para las peticiones HTTP
+                        // 🔓 Públicos
                         .requestMatchers("/auth/**").permitAll()                                              // Permite acceso público a todas las rutas que comiencen con /auth/
+
+                        // 👥 USER y ADMIN
+                        .requestMatchers("/usuarios/listarUsuarios").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/usuarios/actualizarUsuario/**").hasAnyRole("ADMIN", "USER")
+
+                        // 👑 ADMIN: acceso total a /usuarios/**
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+
+                        // 🔒 Todo lo demás requiere autenticación
                         .anyRequest().authenticated())                                                                  // Cualquier otra petición requiere que el usuario esté autenticado
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
