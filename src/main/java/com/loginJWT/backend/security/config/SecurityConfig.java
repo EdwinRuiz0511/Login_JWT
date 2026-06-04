@@ -31,7 +31,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth                                       // Configura las reglas de autorización para las peticiones HTTP
                         // 🔓 Públicos
-                        .requestMatchers("/auth/**").permitAll()                                              // Permite acceso público a todas las rutas que comiencen con /auth/
+                         .requestMatchers("/auth/**").permitAll()                                              // Permite acceso público a todas las rutas que comiencen con /auth/
 
                         // 👥 USER y ADMIN
                         .requestMatchers("/usuarios/listarUsuarios").hasAnyRole("ADMIN", "USER")
